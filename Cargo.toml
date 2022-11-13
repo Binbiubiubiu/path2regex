@@ -1,0 +1,20 @@
+[package]
+name = "path2regex"
+version = "0.0.0-alpha"
+edition = "2021"
+rust-version = "1.60"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+authors = ["Binbiubiubiu <2632003786@qq.com>"]
+documentation = "https://docs.rs/path2regex"
+repository = "https://github.com/Binbiubiubiu/path2regex"
+keywords = ["express", "regexp", "route", "routing"]
+categories = ["text-processing"]
+description = "Express style path to RegExp utility"
+publish = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.66"
+regex = "1.7.0"
