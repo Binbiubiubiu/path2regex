@@ -3,29 +3,62 @@
 use eyre::{eyre, Result};
 use std::cell::Cell;
 
-use crate::ast::{Key, LexToken, LexTokenKind, Token};
+use crate::{
+    ast::{LexToken, LexTokenKind},
+    compiler::CompilerOptions,
+    escape_string,
+    re_builder::PathRegexOptions,
+    Key, Token,
+};
 
 /// The Option of the Parser
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct ParserOptions {
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
-    delimiter: String,
+    pub(crate) delimiter: String,
     /// List of characters to automatically consider prefixes when parsing.
-    prefixes: String,
-}
-
-impl ParserOptions {
-    /// create a Options
-    pub fn new() -> Self {
-        Default::default()
-    }
+    pub(crate) prefixes: String,
 }
 
 impl Default for ParserOptions {
     fn default() -> Self {
-        ParserOptions {
-            delimiter: String::from("/#?"),
-            prefixes: String::from("./"),
+        Self {
+            delimiter: "/#?".to_owned(),
+            prefixes: "./".to_owned(),
+        }
+    }
+}
+
+impl std::fmt::Display for ParserOptions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(&self, f)
+    }
+}
+
+impl From<PathRegexOptions> for ParserOptions {
+    fn from(options: PathRegexOptions) -> Self {
+        let PathRegexOptions {
+            delimiter,
+            prefixes,
+            ..
+        } = options;
+        Self {
+            delimiter,
+            prefixes,
+        }
+    }
+}
+
+impl From<CompilerOptions> for ParserOptions {
+    fn from(options: CompilerOptions) -> Self {
+        let CompilerOptions {
+            delimiter,
+            prefixes,
+            ..
+        } = options;
+        Self {
+            delimiter,
+            prefixes,
         }
     }
 }
@@ -36,18 +69,13 @@ pub struct ParserBuilder(ParserOptions);
 
 impl ParserBuilder {
     /// Create a Parser Builder
-    pub fn new() -> ParserBuilder {
-        ParserBuilder(ParserOptions::default())
+    pub fn new() -> Self {
+        Self(Default::default())
     }
 
     /// Finish to build a Parser
     pub fn build(&self) -> Parser {
         Parser(self.0.clone())
-    }
-
-    /// build the options
-    pub fn build_options(&self) -> ParserOptions {
-        self.0.clone()
     }
 
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
@@ -69,8 +97,13 @@ impl ParserBuilder {
     }
 }
 
+impl Default for ParserBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 /// Path parser
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct Parser(ParserOptions);
 
 impl Parser {
@@ -88,27 +121,15 @@ impl Parser {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_lexer() {
-        let arr = lexer("/\\segment+").unwrap();
-        assert_eq!(format!("{:?}",arr),"[ { type: CHAR, index: 0, value: \"/\" },  { type: ESCAPEDCHAR, index: 1, value: \"s\" },  { type: CHAR, index: 3, value: \"e\" },  { type: CHAR, index: 4, value: \"g\" },  { type: CHAR, index: 5, value: \"m\" },  { type: CHAR, index: 6, value: \"e\" },  { type: CHAR, index: 7, value: \"n\" },  { type: CHAR, index: 8, value: \"t\" },  { type: MODIFIER, index: 9, value: \"+\" },  { type: END, index: 10, value: \"\" }]");
-    }
-
-    #[test]
-    fn test_parse() {
-        // let p = Parser::new();
-        // println!("{:#?}", lexer("{:test/}+").unwrap());
-        println!("{:#?}", parse("packages/:test(.\\d+)").unwrap());
-        assert!(true);
+impl Default for Parser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 /// lex word parser
-fn lexer<'a>(input: &'a str) -> Result<Vec<LexToken<'a>>> {
+#[inline]
+fn lexer(input: &str) -> Result<Vec<LexToken<'_>>> {
     use LexTokenKind::*;
 
     let mut tokens = vec![];
@@ -248,37 +269,22 @@ fn lexer<'a>(input: &'a str) -> Result<Vec<LexToken<'a>>> {
     Ok(tokens)
 }
 
-/// Parse the path to the lexical with the default options
-pub fn parse<'b, I>(input: I) -> Result<Vec<Token>>
-where
-    I: AsRef<str> + 'b,
-{
-    parse_with_options(input, &Default::default())
-}
-
 /// Parse the path to the lexical with Some options
-pub fn parse_with_options<'b, I>(input: I, options: &ParserOptions) -> Result<Vec<Token>>
+#[inline]
+pub(crate) fn parse_with_options<'b, I>(input: I, options: &ParserOptions) -> Result<Vec<Token>>
 where
     I: AsRef<str> + 'b,
 {
     let ParserOptions {
         delimiter,
         prefixes,
-        ..
     } = options;
 
     use LexTokenKind::*;
     let input = input.as_ref();
     let tokens = lexer(input)?;
     let mut result = vec![];
-    let default_pattern = format!(
-        "[^{}]+?",
-        regex::escape(if delimiter.is_empty() {
-            "/#?"
-        } else {
-            delimiter
-        })
-    );
+    let default_pattern = format!("[^{}]+?", escape_string(delimiter));
 
     let mut key: usize = 0;
     let i: Cell<usize> = Cell::new(0);
@@ -304,7 +310,7 @@ where
 
     let consume_text = || {
         let mut result = String::new();
-        while let Some(t) = try_consume(Char).or(try_consume(EscapedChar)) {
+        while let Some(t) = try_consume(Char).or_else(|| try_consume(EscapedChar)) {
             result += t;
         }
         result
@@ -318,7 +324,7 @@ where
         if name.or(pattern).is_some() {
             let mut prefix = char.unwrap_or("");
 
-            if prefixes.find(prefix).is_none() {
+            if !prefixes.contains(prefix) {
                 path += prefix;
                 prefix = ""
             }
@@ -345,7 +351,7 @@ where
             continue;
         }
 
-        let value = char.or(try_consume(EscapedChar));
+        let value = char.or_else(|| try_consume(EscapedChar));
         if let Some(value) = value {
             path += value;
             continue;

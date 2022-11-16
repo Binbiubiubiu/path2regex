@@ -1,6 +1,10 @@
+use path2regex::{json, Compiler};
 
-
-fn main() {
-    // let c = Compiler::new().delimiter("/").prefixes("23");
-    // c.compile("2323").unwrap();
+fn main() -> eyre::Result<()> {
+    let s = Compiler::new("/:a/:b")?.render(&json!({
+        "a":1,
+        "b":2
+    }))?;
+    dbg!(s);
+    Ok(())
 }

@@ -57,6 +57,7 @@ impl<'a> std::fmt::Debug for LexToken<'a> {
 }
 
 ///
+#[derive(Eq, PartialEq, Clone)]
 pub struct Key {
     ///
     pub name: String,
@@ -70,7 +71,26 @@ pub struct Key {
     pub modifier: String,
 }
 
+impl std::fmt::Display for Key {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(&self, f)
+    }
+}
+
+impl std::fmt::Debug for Key {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Key")
+            .field("name", &self.name)
+            .field("prefix", &self.prefix)
+            .field("suffix", &self.suffix)
+            .field("pattern", &self.pattern)
+            .field("modifier", &self.modifier)
+            .finish()
+    }
+}
+
 /// Token
+#[derive(Clone)]
 pub enum Token {
     ///
     Static(String),
@@ -89,7 +109,7 @@ impl std::fmt::Display for Token {
                 pattern,
                 modifier,
             }) => f
-                .debug_struct("")
+                .debug_struct("Token")
                 .field("name", name)
                 .field("prefix", prefix)
                 .field("suffix", suffix)
