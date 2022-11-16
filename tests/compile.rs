@@ -1,4 +1,5 @@
-use path2regex::{json, Compiler};
+use path2regex::Compiler;
+use serde_json::json;
 
 fn main() -> eyre::Result<()> {
     let s = Compiler::new("/:a/:b")?.render(&json!({

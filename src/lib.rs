@@ -2,7 +2,8 @@
 
 #![forbid(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![warn(missing_docs, rust_2018_idioms, unreachable_pub, private_in_public)]
+#![deny(private_in_public, unreachable_pub)]
+#![warn(missing_docs, rust_2018_idioms)]
 
 mod ast;
 mod compiler;
@@ -14,7 +15,7 @@ mod try_pipe;
 
 pub use ast::{Key, Token};
 pub use compiler::{Compiler, CompilerBuilder};
-pub use matcher::{Matcher,MatcherBuilder};
+pub use matcher::{Matcher, MatcherBuilder};
 pub use parser::{Parser, ParserBuilder};
 pub use re::PathRegex;
 pub use re_builder::PathRegexBuilder;

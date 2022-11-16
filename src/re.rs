@@ -208,13 +208,10 @@ where
     Ok(PathRegex { re, keys })
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_string_to_path_regex() {
-        
-    }
+    fn test_string_to_path_regex() {}
 }
