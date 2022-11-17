@@ -1,8 +1,7 @@
-use path2regex::ParserBuilder;
+use path2regex::{PathRegexOptions, TryIntoWith};
 
-fn main() {
-    let _p = ParserBuilder::new().delimiter("/").prefixes("23").build();
-    // p.parse("2323").unwrap();
-    let a = 1;
-    format!("{}", a);
+fn main() -> anyhow::Result<()> {
+    let tokens = "/a/:b".try_into_with(&PathRegexOptions::default())?;
+    println!("{:?}", tokens);
+    Ok(())
 }

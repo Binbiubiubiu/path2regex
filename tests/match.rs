@@ -1,3 +1,5 @@
+#![cfg(feature = "match")]
+
 use regex::Regex;
 
 fn main() {

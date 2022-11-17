@@ -1,30 +1,37 @@
-use eyre::Result;
+//! re
+
+use super::Builder;
+
+use anyhow::Result;
 
 use crate::{
-    matcher::MatcherOptions, parser::ParserOptions, try_pipe::TryPipe, type_of, PathRegex,
+    internal::{type_of, FnStr},
+    try_into_with::TryIntoWith,
+    ParserOptions, PathRegex,
 };
 
-///
-pub(crate) type EncodeFn = for<'a> fn(&'a String) -> String;
+#[cfg(feature = "match")]
+use crate::MatcherOptions;
+
 ///
 #[derive(Clone)]
 pub struct PathRegexOptions {
     /// Set the default delimiter for repeat parameters. (default: `'/#?'`)
-    pub(crate) delimiter: String,
+    pub delimiter: String,
     /// List of characters to automatically consider prefixes when parsing.
-    pub(crate) prefixes: String,
+    pub prefixes: String,
     /// When `true` the regexp will be case sensitive. (default: `false`)
-    pub(crate) sensitive: bool,
+    pub sensitive: bool,
     /// When `true` the regexp won't allow an optional trailing delimiter to match. (default: `false`)
-    pub(crate) strict: bool,
+    pub strict: bool,
     /// When `true` the regexp will match to the end of the string. (default: `true`)
-    pub(crate) end: bool,
+    pub end: bool,
     /// When `true` the regexp will match from the beginning of the string. (default: `true`)
-    pub(crate) start: bool,
+    pub start: bool,
     /// List of characters that can also be "end" characters.
-    pub(crate) ends_with: String,
+    pub ends_with: String,
     /// Encode path tokens for use in the `Regex`.
-    pub(crate) encode: EncodeFn,
+    pub encode: FnStr,
 }
 
 impl PathRegexOptions {
@@ -53,6 +60,7 @@ impl Default for PathRegexOptions {
     }
 }
 
+#[cfg(feature = "match")]
 impl From<MatcherOptions> for PathRegexOptions {
     fn from(options: MatcherOptions) -> Self {
         let MatcherOptions {
@@ -101,87 +109,77 @@ impl std::fmt::Debug for PathRegexOptions {
 }
 
 ///
-pub struct PathRegexBuilder<T> {
-    source: T,
+pub struct PathRegexBuilder<S> {
+    source: S,
     options: PathRegexOptions,
 }
 
-impl<T> PathRegexBuilder<T>
+impl<S> Builder<Result<PathRegex>> for PathRegexBuilder<S>
 where
-    T: TryPipe<PathRegex, PathRegexOptions>,
+    S: TryIntoWith<PathRegex, PathRegexOptions>,
 {
     ///
-    pub fn new(source: T) -> Self {
+    fn build(self) -> Result<PathRegex> {
+        self.source.try_into_with(&self.options)
+    }
+}
+
+impl<S> PathRegexBuilder<S>
+where
+    S: TryIntoWith<PathRegex, PathRegexOptions>,
+{
+    ///
+    pub fn new(source: S) -> Self {
         Self {
             source,
             options: Default::default(),
         }
     }
 
-    ///
-    pub fn build(&self) -> Result<PathRegex> {
-        self.source.try_pipe(&self.options)
-    }
-
-    ///
-    pub fn replace_options(&mut self, options: PathRegexOptions) -> &mut Self {
-        self.options = options;
-        self
-    }
-
     /// List of characters to automatically consider prefixes when parsing.
-    pub fn prefixes<S>(&mut self, prefixes: S) -> &mut Self
-    where
-        S: AsRef<str>,
-    {
+    pub fn set_prefixes(&mut self, prefixes: impl AsRef<str>) -> &mut Self {
         self.options.prefixes = prefixes.as_ref().to_owned();
         self
     }
 
     ///
-    pub fn sensitive(&mut self, yes: bool) -> &mut Self {
+    pub fn set_sensitive(&mut self, yes: bool) -> &mut Self {
         self.options.sensitive = yes;
         self
     }
 
     ///
-    pub fn strict(&mut self, yes: bool) -> &mut Self {
+    pub fn set_strict(&mut self, yes: bool) -> &mut Self {
         self.options.strict = yes;
         self
     }
 
     ///
-    pub fn end(&mut self, yes: bool) -> &mut Self {
+    pub fn set_end(&mut self, yes: bool) -> &mut Self {
         self.options.end = yes;
         self
     }
 
     ///
-    pub fn start(&mut self, yes: bool) -> &mut Self {
+    pub fn set_start(&mut self, yes: bool) -> &mut Self {
         self.options.start = yes;
         self
     }
 
     ///
-    pub fn delimiter<S>(&mut self, de: S) -> &mut Self
-    where
-        S: AsRef<str>,
-    {
+    pub fn set_delimiter(&mut self, de: impl AsRef<str>) -> &mut Self {
         self.options.delimiter = de.as_ref().to_owned();
         self
     }
 
     ///
-    pub fn ends_with<S>(&mut self, end: S) -> &mut Self
-    where
-        S: AsRef<str>,
-    {
+    pub fn set_ends_with(&mut self, end: impl AsRef<str>) -> &mut Self {
         self.options.ends_with = end.as_ref().to_owned();
         self
     }
 
     ///
-    pub fn encode(&mut self, encode: EncodeFn) -> &mut Self {
+    pub fn set_encode(&mut self, encode: FnStr) -> &mut Self {
         self.options.encode = encode;
         self
     }

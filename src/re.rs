@@ -1,12 +1,10 @@
-use eyre::Result;
+use anyhow::Result;
 
 use regex::{Regex, RegexBuilder};
 
 use crate::{
-    escape_string,
-    parser::{parse_with_options, ParserOptions},
-    re_builder::PathRegexOptions,
-    Key, PathRegexBuilder, Token,
+    builder::Builder, internal::escape_string, try_into_with::TryIntoWith, Key, Parser,
+    ParserOptions, PathRegexBuilder, PathRegexOptions, Token,
 };
 
 ///
@@ -19,22 +17,16 @@ pub struct PathRegex {
 
 impl PathRegex {
     ///
-    pub fn new<S>(path: S) -> Result<Self>
+    pub fn new<S>(source: S) -> Result<Self>
     where
-        S: AsRef<str>,
+        S: TryIntoWith<PathRegex, PathRegexOptions>,
     {
-        PathRegexBuilder::new(path.as_ref()).build()
-    }
-}
-
-impl From<Regex> for PathRegex {
-    fn from(re: Regex) -> Self {
-        PathRegexBuilder::new(re).build().unwrap()
+        PathRegexBuilder::new(source).build()
     }
 }
 
 impl std::str::FromStr for PathRegex {
-    type Err = eyre::Error;
+    type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         PathRegexBuilder::new(s).build()
     }
@@ -161,7 +153,7 @@ pub(crate) fn tokens_to_path_regex(
     }
 
     if *end {
-        if !*strict {
+        if !strict {
             route += &format!("{delimiter_re}?");
         }
 
@@ -202,16 +194,8 @@ where
     S: AsRef<str>,
 {
     let mut keys = vec![];
-    let tokens = parse_with_options(path, &ParserOptions::from(options.clone()))?;
+    let tokens = Parser::parse_str(path, &ParserOptions::from(options.clone()))?;
 
     let re = tokens_to_path_regex(tokens, &mut keys, options)?;
     Ok(PathRegex { re, keys })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_string_to_path_regex() {}
 }
