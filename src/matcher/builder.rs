@@ -116,9 +116,7 @@ where
     }
 }
 
-impl<I> MatcherBuilder<I>{
-
-
+impl<I> MatcherBuilder<I> {
     /// List of characters to automatically consider prefixes when parsing.
     pub fn set_prefixes(&mut self, prefixes: impl AsRef<str>) -> &mut Self {
         self.options.prefixes = prefixes.as_ref().to_owned();

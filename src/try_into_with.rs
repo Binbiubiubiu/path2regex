@@ -20,8 +20,7 @@ impl TryIntoWith<Vec<Token>, ParserOptions> for Vec<Token> {
     }
 }
 
-impl TryIntoWith<Vec<Token>, ParserOptions> for String
-{
+impl TryIntoWith<Vec<Token>, ParserOptions> for String {
     fn try_into_with(self, options: &ParserOptions) -> Result<Vec<Token>> {
         (&*self).try_into_with(options)
     }

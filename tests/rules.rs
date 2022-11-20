@@ -1,7 +1,7 @@
 use anyhow::Result;
 use path2regex::{
     CompilerBuilder, CompilerOptions, Key, MatchResult, MatcherBuilder, MatcherOptions, Parser,
-    ParserOptions, PathRegex, PathRegexOptions, Token, TryIntoWith, PathRegexBuilder,
+    ParserOptions, PathRegex, PathRegexBuilder, PathRegexOptions, Token, TryIntoWith,
 };
 use serde_json::{json, Value};
 
@@ -159,7 +159,7 @@ fn test_rule_1() -> Result<()> {
                 ..Default::default()
             },
         ],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
     assert_match(
@@ -202,7 +202,7 @@ fn test_rule_2() -> Result<()> {
             result: "/test",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
     assert_match(
@@ -259,7 +259,7 @@ fn test_rule_3() -> Result<()> {
             result: "/test/",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
     assert_match(
@@ -287,12 +287,11 @@ fn test_rule_3() -> Result<()> {
     Ok(())
 }
 
-
 #[test]
 fn test_rule_4() -> Result<()> {
     let path = "/test";
-    let ops = PathRegexOptions{
-        sensitive:true,
+    let ops = PathRegexOptions {
+        sensitive: true,
         ..PathRegexOptions::default()
     };
     let tokens = vec![Token::Static("/test".to_owned())];
@@ -323,19 +322,17 @@ fn test_rule_4() -> Result<()> {
             result: "/test",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
- 
     Ok(())
 }
-
 
 #[test]
 fn test_rule_5() -> Result<()> {
     let path = "/test";
-    let ops = PathRegexOptions{
-        strict:true,
+    let ops = PathRegexOptions {
+        strict: true,
         ..PathRegexOptions::default()
     };
     let tokens = vec![Token::Static("/test".to_owned())];
@@ -371,19 +368,17 @@ fn test_rule_5() -> Result<()> {
             result: "/test",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
- 
     Ok(())
 }
-
 
 #[test]
 fn test_rule_6() -> Result<()> {
     let path = "/test/";
-    let ops = PathRegexOptions{
-        strict:true,
+    let ops = PathRegexOptions {
+        strict: true,
         ..PathRegexOptions::default()
     };
     let tokens = vec![Token::Static("/test/".to_owned())];
@@ -418,19 +413,17 @@ fn test_rule_6() -> Result<()> {
             result: "/test/",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
- 
     Ok(())
 }
-
 
 #[test]
 fn test_rule_7() -> Result<()> {
     let path = "/test";
-    let ops = PathRegexOptions{
-        end:false,
+    let ops = PathRegexOptions {
+        end: false,
         ..PathRegexOptions::default()
     };
     let tokens = vec![Token::Static("/test".to_owned())];
@@ -445,17 +438,17 @@ fn test_rule_7() -> Result<()> {
         &vec![
             MatchCase {
                 path_name: "/test",
-                matches: Some(vec!["/test",""]),
+                matches: Some(vec!["/test", ""]),
                 ..Default::default()
             },
             MatchCase {
                 path_name: "/test/",
-                matches: Some(vec!["/test/",""]),
+                matches: Some(vec!["/test/", ""]),
                 ..Default::default()
             },
             MatchCase {
                 path_name: "/test/route",
-                matches: Some(vec!["/test/","/"]),
+                matches: Some(vec!["/test/", "/"]),
                 ..Default::default()
             },
             MatchCase {
@@ -471,9 +464,8 @@ fn test_rule_7() -> Result<()> {
             result: "/test",
             ..Default::default()
         }],
-        CompilerOptions::default()
+        CompilerOptions::default(),
     )?;
 
- 
     Ok(())
 }
