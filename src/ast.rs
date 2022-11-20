@@ -34,6 +34,7 @@ lex_token_kind! {
 }
 
 ///
+#[derive(Clone, PartialEq, Eq)]
 pub(crate) struct LexToken<'a> {
     pub(crate) kind: LexTokenKind,
     pub(crate) index: usize,
@@ -56,18 +57,18 @@ impl<'a> std::fmt::Debug for LexToken<'a> {
     }
 }
 
-///
-#[derive(Eq, PartialEq, Clone)]
+/// Parameter matches in the path
+#[derive(Eq, PartialEq, Clone, Default)]
 pub struct Key {
-    ///
+    /// The name of the parameter
     pub name: String,
-    ///
+    /// The prefix of the parameter
     pub prefix: String,
-    ///
+    /// The suffix of the parameter
     pub suffix: String,
-    ///
+    /// The regular in the parameter
     pub pattern: String,
-    ///
+    /// The modifier for the parameter
     pub modifier: String,
 }
 
@@ -89,12 +90,12 @@ impl std::fmt::Debug for Key {
     }
 }
 
-/// Token
-#[derive(Clone)]
+/// An abstract syntax tree node parsed by a path
+#[derive(Clone, PartialEq, Eq)]
 pub enum Token {
-    ///
+    /// A static path item
     Static(String),
-    ///
+    /// Parameter matches in the path
     Key(Key),
 }
 

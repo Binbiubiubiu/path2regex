@@ -3,8 +3,9 @@
 use anyhow::Result;
 
 use crate::{
+    parser::parse_str_with_options,
     re::{regex_to_path_regex, string_to_path_regex},
-    Parser, ParserOptions, PathRegex, PathRegexOptions, Token,
+    ParserOptions, PathRegex, PathRegexOptions, Token,
 };
 
 ///
@@ -19,15 +20,16 @@ impl TryIntoWith<Vec<Token>, ParserOptions> for Vec<Token> {
     }
 }
 
-impl TryIntoWith<Vec<Token>, ParserOptions> for String {
+impl TryIntoWith<Vec<Token>, ParserOptions> for String
+{
     fn try_into_with(self, options: &ParserOptions) -> Result<Vec<Token>> {
-        Parser::parse_str(self, options)
+        (&*self).try_into_with(options)
     }
 }
 
 impl TryIntoWith<Vec<Token>, ParserOptions> for &str {
     fn try_into_with(self, options: &ParserOptions) -> Result<Vec<Token>> {
-        Parser::parse_str(self, options)
+        parse_str_with_options(self, options)
     }
 }
 
@@ -41,7 +43,7 @@ impl TryIntoWith<PathRegex, PathRegexOptions> for regex::Regex {
 
 impl TryIntoWith<PathRegex, PathRegexOptions> for String {
     fn try_into_with(self, options: &PathRegexOptions) -> Result<PathRegex> {
-        string_to_path_regex(self, options)
+        (&*self).try_into_with(options)
     }
 }
 

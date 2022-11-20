@@ -1,12 +1,10 @@
-//! The Option of the Parser
+//! The Builder of the [`Parser`](struct.Parser.html)
 
 #[cfg(feature = "compile")]
 use crate::CompilerOptions;
-use crate::{Parser, PathRegexOptions};
+use crate::{Parser, PathRegexOptions, DEFUALT_DELIMITER};
 
-use super::Builder;
-
-///
+/// The Configuration of the [`Parser`](struct.Parser.html)
 #[derive(Clone)]
 pub struct ParserOptions {
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
@@ -18,7 +16,7 @@ pub struct ParserOptions {
 impl Default for ParserOptions {
     fn default() -> Self {
         Self {
-            delimiter: "/#?".to_owned(),
+            delimiter: DEFUALT_DELIMITER.to_owned(),
             prefixes: "./".to_owned(),
         }
     }
@@ -40,6 +38,7 @@ impl std::fmt::Display for ParserOptions {
 }
 
 impl From<PathRegexOptions> for ParserOptions {
+    #[inline]
     fn from(options: PathRegexOptions) -> Self {
         let PathRegexOptions {
             delimiter,
@@ -55,6 +54,7 @@ impl From<PathRegexOptions> for ParserOptions {
 
 #[cfg(feature = "compile")]
 impl From<CompilerOptions> for ParserOptions {
+    #[inline]
     fn from(options: CompilerOptions) -> Self {
         let CompilerOptions {
             delimiter,
@@ -68,16 +68,9 @@ impl From<CompilerOptions> for ParserOptions {
     }
 }
 
-///
+/// The Builder of the [`Parser`](struct.Parser.html)
 #[derive(Debug, Clone)]
 pub struct ParserBuilder(ParserOptions);
-
-impl Builder<Parser> for ParserBuilder {
-    /// Finish to build a Parser
-    fn build(self) -> Parser {
-        Parser(self.0)
-    }
-}
 
 impl ParserBuilder {
     /// Create a Parser Builder
@@ -85,8 +78,13 @@ impl ParserBuilder {
         Self(Default::default())
     }
 
+    /// Finish to build a Parser
+    pub fn build(&self) -> Parser {
+        Parser(self.0.clone())
+    }
+
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
-    pub fn delimiter<S>(&mut self, delimiter: S) -> &mut ParserBuilder
+    pub fn set_delimiter<S>(&mut self, delimiter: S) -> &mut Self
     where
         S: AsRef<str>,
     {
@@ -95,7 +93,7 @@ impl ParserBuilder {
     }
 
     /// List of characters to automatically consider prefixes when parsing.
-    pub fn prefixes<S>(&mut self, prefixes: S) -> &mut ParserBuilder
+    pub fn set_prefixes<S>(&mut self, prefixes: S) -> &mut Self
     where
         S: AsRef<str>,
     {

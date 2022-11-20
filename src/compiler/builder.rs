@@ -1,21 +1,20 @@
-//!
+//! The Builder of the [`Compiler`](struct.Compiler.html)
+
+use anyhow::Result;
+
 use crate::{
     internal::{type_of, FnStrWithKey},
     try_into_with::TryIntoWith,
     Compiler, Key, ParserOptions, Token,
 };
-use anyhow::Result;
 
-use super::Builder;
-
-/// The Option of the Parser
+/// The Configuration of the [`Compiler`](struct.Compiler.html)
 #[derive(Clone)]
 pub struct CompilerOptions {
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
     pub delimiter: String,
     /// List of characters to automatically consider prefixes when parsing.
     pub prefixes: String,
-
     /// When `true` the regexp will be case sensitive. (default: `false`)
     pub sensitive: bool,
     /// Function for encoding input strings for output.
@@ -26,10 +25,13 @@ pub struct CompilerOptions {
 
 impl Default for CompilerOptions {
     fn default() -> Self {
-        let po = ParserOptions::default();
+        let ParserOptions {
+            delimiter,
+            prefixes,
+        } = ParserOptions::default();
         Self {
-            delimiter: po.delimiter,
-            prefixes: po.prefixes,
+            delimiter,
+            prefixes,
             sensitive: false,
             encode: |x, _| x.to_owned(),
             validate: true,
@@ -55,21 +57,35 @@ impl std::fmt::Debug for CompilerOptions {
     }
 }
 
-///
+/// The Builder of the [`Compiler`](struct.Compiler.html)
 #[derive(Clone)]
 pub struct CompilerBuilder<I> {
     source: I,
     options: CompilerOptions,
 }
 
-impl<I> Builder<Result<Compiler>> for CompilerBuilder<I>
+impl<I> CompilerBuilder<I>
 where
     I: TryIntoWith<Vec<Token>, ParserOptions>,
 {
-    /// Finish to build a Compiler
-    fn build(self) -> Result<Compiler> {
+    /// Create a builder of the [`Compiler`](struct.Compiler.html)
+    pub fn new(source: I) -> Self {
+        Self {
+            source,
+            options: Default::default(),
+        }
+    }
+
+    /// Create a builder of the [`Compiler`](struct.Compiler.html) with the options
+    pub fn new_with_options(source: I, options: CompilerOptions) -> Self {
+        Self { source, options }
+    }
+
+    /// build a builder of the [`Compiler`](struct.Compiler.html)
+    pub fn build(&self) -> Result<Compiler> {
         let tokens = self
             .source
+            .clone()
             .try_into_with(&ParserOptions::from(self.options.clone()))?;
         let matches = tokens
             .iter()
@@ -87,21 +103,8 @@ where
         Ok(Compiler {
             tokens,
             matches,
-            options: self.options,
+            options: self.options.clone(),
         })
-    }
-}
-
-impl<I> CompilerBuilder<I>
-where
-    I: TryIntoWith<Vec<Token>, ParserOptions>,
-{
-    ///
-    pub fn new(source: I) -> Self {
-        Self {
-            source,
-            options: Default::default(),
-        }
     }
 
     /// Set the default delimiter for repeat parameters. (default: `'/'`)
@@ -122,13 +125,13 @@ where
         self
     }
 
-    ///
+    /// When `true` the regexp will be case sensitive. (default: `false`)
     pub fn set_sensitive(&mut self, yes: bool) -> &mut Self {
         self.options.sensitive = yes;
         self
     }
 
-    ///
+    /// Function for encoding input strings for output.
     pub fn set_encode(&mut self, encode: FnStrWithKey) -> &mut Self {
         self.options.encode = encode;
         self

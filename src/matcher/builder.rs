@@ -1,21 +1,15 @@
-//! re
-
-use super::Builder;
-
+//! The Builder of the [`Matcher`](struct.Matcher.html)
 use anyhow::Result;
 
 use crate::{
-    internal::{type_of, FnStr},
+    internal::{type_of, FnStr, FnStrWithKey},
     try_into_with::TryIntoWith,
-    ParserOptions, PathRegex,
+    Matcher, PathRegex, PathRegexOptions,
 };
 
-#[cfg(feature = "match")]
-use crate::MatcherOptions;
-
-///
+/// The Configuration of the [`Matcher`](struct.Matcher.html)
 #[derive(Clone)]
-pub struct PathRegexOptions {
+pub struct MatcherOptions {
     /// Set the default delimiter for repeat parameters. (default: `'/#?'`)
     pub delimiter: String,
     /// List of characters to automatically consider prefixes when parsing.
@@ -32,38 +26,13 @@ pub struct PathRegexOptions {
     pub ends_with: String,
     /// Encode path tokens for use in the `Regex`.
     pub encode: FnStr,
+    /// Function for decoding strings for params.
+    pub decode: FnStrWithKey,
 }
 
-impl PathRegexOptions {
-    ///
-    pub fn new() -> Self {
-        Default::default()
-    }
-}
-
-impl Default for PathRegexOptions {
+impl Default for MatcherOptions {
     fn default() -> Self {
-        let ParserOptions {
-            delimiter,
-            prefixes,
-        } = ParserOptions::default();
-        Self {
-            delimiter,
-            prefixes,
-            sensitive: false,
-            strict: false,
-            end: true,
-            start: true,
-            ends_with: "".to_owned(),
-            encode: |x| x.to_owned(),
-        }
-    }
-}
-
-#[cfg(feature = "match")]
-impl From<MatcherOptions> for PathRegexOptions {
-    fn from(options: MatcherOptions) -> Self {
-        let MatcherOptions {
+        let PathRegexOptions {
             delimiter,
             prefixes,
             sensitive,
@@ -72,8 +41,7 @@ impl From<MatcherOptions> for PathRegexOptions {
             start,
             ends_with,
             encode,
-            ..
-        } = options;
+        } = PathRegexOptions::default();
         Self {
             delimiter,
             prefixes,
@@ -83,19 +51,20 @@ impl From<MatcherOptions> for PathRegexOptions {
             start,
             ends_with,
             encode,
+            decode: |x, _| x.to_owned(),
         }
     }
 }
 
-impl std::fmt::Display for PathRegexOptions {
+impl std::fmt::Display for MatcherOptions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(&self, f)
     }
 }
 
-impl std::fmt::Debug for PathRegexOptions {
+impl std::fmt::Debug for MatcherOptions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("PathRegexOptions")
+        f.debug_struct("MatcherOptions")
             .field("delimiter", &self.delimiter)
             .field("prefixes", &self.prefixes)
             .field("sensitive", &self.sensitive)
@@ -104,37 +73,51 @@ impl std::fmt::Debug for PathRegexOptions {
             .field("start", &self.start)
             .field("ends_with", &self.ends_with)
             .field("encode", &type_of(self.encode))
+            .field("decode", &type_of(self.decode))
             .finish()
     }
 }
 
-///
-pub struct PathRegexBuilder<S> {
-    source: S,
-    options: PathRegexOptions,
+/// The Builder of the [`Matcher`](struct.Matcher.html)
+pub struct MatcherBuilder<I> {
+    source: I,
+    options: MatcherOptions,
 }
 
-impl<S> Builder<Result<PathRegex>> for PathRegexBuilder<S>
+impl<I> MatcherBuilder<I>
 where
-    S: TryIntoWith<PathRegex, PathRegexOptions>,
+    I: TryIntoWith<PathRegex, PathRegexOptions>,
 {
     ///
-    fn build(self) -> Result<PathRegex> {
-        self.source.try_into_with(&self.options)
-    }
-}
-
-impl<S> PathRegexBuilder<S>
-where
-    S: TryIntoWith<PathRegex, PathRegexOptions>,
-{
-    ///
-    pub fn new(source: S) -> Self {
+    pub fn new(source: I) -> Self {
         Self {
             source,
             options: Default::default(),
         }
     }
+
+    ///
+    pub fn new_with_options(source: I, options: MatcherOptions) -> Self {
+        Self { source, options }
+    }
+
+    ///
+    pub fn build(&self) -> Result<Matcher> {
+        let re = self
+            .source
+            .clone()
+            .try_into_with(&PathRegexOptions::from(self.options.clone()))?;
+
+        Ok(Matcher {
+            re: re.clone(),
+            keys: re.keys,
+            options: self.options.clone(),
+        })
+    }
+}
+
+impl<I> MatcherBuilder<I>{
+
 
     /// List of characters to automatically consider prefixes when parsing.
     pub fn set_prefixes(&mut self, prefixes: impl AsRef<str>) -> &mut Self {
@@ -142,45 +125,51 @@ where
         self
     }
 
-    ///
+    /// When `true` the regexp will be case sensitive. (default: `false`)
     pub fn set_sensitive(&mut self, yes: bool) -> &mut Self {
         self.options.sensitive = yes;
         self
     }
 
-    ///
+    /// When `true` the regexp won't allow an optional trailing delimiter to match. (default: `false`)
     pub fn set_strict(&mut self, yes: bool) -> &mut Self {
         self.options.strict = yes;
         self
     }
 
-    ///
+    /// When `true` the regexp will match to the end of the string. (default: `true`)
     pub fn set_end(&mut self, yes: bool) -> &mut Self {
         self.options.end = yes;
         self
     }
 
-    ///
+    /// When `true` the regexp will match from the beginning of the string. (default: `true`)
     pub fn set_start(&mut self, yes: bool) -> &mut Self {
         self.options.start = yes;
         self
     }
 
-    ///
+    /// Set the default delimiter for repeat parameters. (default: `'/'`)
     pub fn set_delimiter(&mut self, de: impl AsRef<str>) -> &mut Self {
         self.options.delimiter = de.as_ref().to_owned();
         self
     }
 
-    ///
+    /// List of characters that can also be "end" characters.
     pub fn set_ends_with(&mut self, end: impl AsRef<str>) -> &mut Self {
         self.options.ends_with = end.as_ref().to_owned();
         self
     }
 
-    ///
+    /// Function for encoding input strings for output.
     pub fn set_encode(&mut self, encode: FnStr) -> &mut Self {
         self.options.encode = encode;
+        self
+    }
+
+    /// Function for decoding strings for params.
+    pub fn set_decode(&mut self, decode: FnStrWithKey) -> &mut Self {
+        self.options.decode = decode;
         self
     }
 }

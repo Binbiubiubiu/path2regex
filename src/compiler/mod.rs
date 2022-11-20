@@ -1,16 +1,13 @@
-//! 2323
+//! Path compiler
+mod builder;
 
 use anyhow::{anyhow, Result};
+pub use builder::{CompilerBuilder, CompilerOptions};
 use regex::Regex;
 
-use crate::{
-    builder::{Builder, CompilerBuilder, CompilerOptions},
-    internal::DataValue,
-    try_into_with::TryIntoWith,
-    Key, ParserOptions, Token,
-};
+use crate::{internal::DataValue, try_into_with::TryIntoWith, Key, ParserOptions, Token};
 
-///
+/// Path compiler
 pub struct Compiler {
     pub(crate) tokens: Vec<Token>,
     pub(crate) matches: Vec<Option<Regex>>,
@@ -19,6 +16,7 @@ pub struct Compiler {
 
 impl Compiler {
     ///
+    #[inline]
     pub fn new<I>(path: I) -> Result<Compiler>
     where
         I: TryIntoWith<Vec<Token>, ParserOptions>,
