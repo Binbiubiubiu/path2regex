@@ -19,7 +19,7 @@ pub struct Matcher {
 }
 
 impl Matcher {
-    ///
+    /// Create a [`Matcher`](struct.Matcher.html)
     #[inline]
     pub fn new<S>(path: S) -> Result<Self>
     where
@@ -28,7 +28,7 @@ impl Matcher {
         MatcherBuilder::new(path).build()
     }
 
-    ///
+    /// Create a [`Matcher`](struct.Matcher.html) with the options
     #[inline]
     pub fn new_with_options<S>(path: S, options: MatcherOptions) -> Result<Self>
     where
@@ -37,7 +37,7 @@ impl Matcher {
         MatcherBuilder::new_with_options(path, options).build()
     }
 
-    ///
+    /// matching parameters in the path
     pub fn find<S>(&self, path: S) -> Option<MatchResult>
     where
         S: AsRef<str>,

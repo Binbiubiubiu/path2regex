@@ -20,7 +20,7 @@ pub struct PathRegex {
 }
 
 impl PathRegex {
-    ///
+    /// Create a [`PathRegex`](struct.PathRegex.html)
     #[inline]
     pub fn new<S>(source: S) -> Result<Self>
     where
@@ -29,7 +29,7 @@ impl PathRegex {
         PathRegexBuilder::new(source).build()
     }
 
-    ///
+    /// Create a [`PathRegex`](struct.PathRegex.html) with the options
     #[inline]
     pub fn new_with_options<S>(source: S, options: PathRegexOptions) -> Result<Self>
     where
@@ -38,7 +38,7 @@ impl PathRegex {
         PathRegexBuilder::new_with_options(source, options).build()
     }
 
-    ///
+    /// Get then parameter matches in the path
     pub fn keys(&self) -> &Vec<Key> {
         &self.keys
     }

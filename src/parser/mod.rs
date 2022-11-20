@@ -17,13 +17,13 @@ pub use builder::{ParserBuilder, ParserOptions};
 pub struct Parser(pub(crate) ParserOptions);
 
 impl Parser {
-    /// Create a path Parser
+    /// Create a [Parser](struct.Parser.html)
     #[inline]
     pub fn new() -> Self {
         ParserBuilder::new().build()
     }
 
-    /// Create a path Parser
+    /// Create a [Parser](struct.Parser.html) with the options
     #[inline]
     pub fn new_with_options(options: ParserOptions) -> Self {
         Self(options)
@@ -36,6 +36,7 @@ impl Parser {
 }
 
 impl Default for Parser {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }

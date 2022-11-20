@@ -109,7 +109,7 @@ impl<S> PathRegexBuilder<S>
 where
     S: TryIntoWith<PathRegex, PathRegexOptions>,
 {
-    ///
+    /// Create a [`PathRegex`](struct.PathRegex.html) Builder
     pub fn new(source: S) -> Self {
         Self {
             source,
@@ -117,12 +117,12 @@ where
         }
     }
 
-    ///
+    /// Create a builder of the [`PathRegex`](struct.PathRegex.html) with the options
     pub fn new_with_options(source: S, options: PathRegexOptions) -> Self {
         Self { source, options }
     }
 
-    ///
+    /// build a builder of the [`PathRegex`](struct.PathRegex.html)
     pub fn build(&self) -> Result<PathRegex> {
         self.source.clone().try_into_with(&self.options)
     }

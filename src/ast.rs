@@ -33,7 +33,6 @@ lex_token_kind! {
     End "END"
 }
 
-///
 #[derive(Clone, PartialEq, Eq)]
 pub(crate) struct LexToken<'a> {
     pub(crate) kind: LexTokenKind,

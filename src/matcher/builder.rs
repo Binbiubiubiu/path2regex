@@ -88,7 +88,7 @@ impl<I> MatcherBuilder<I>
 where
     I: TryIntoWith<PathRegex, PathRegexOptions>,
 {
-    ///
+    /// Create a builder of the [`Matcher`](struct.Matcher.html)
     pub fn new(source: I) -> Self {
         Self {
             source,
@@ -96,12 +96,12 @@ where
         }
     }
 
-    ///
+    /// Create a builder of the [`Matcher`](struct.Matcher.html) with the options
     pub fn new_with_options(source: I, options: MatcherOptions) -> Self {
         Self { source, options }
     }
 
-    ///
+    /// build a builder of the [`Matcher`](struct.Matcher.html)
     pub fn build(&self) -> Result<Matcher> {
         let re = self
             .source

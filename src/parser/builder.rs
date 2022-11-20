@@ -73,12 +73,12 @@ impl From<CompilerOptions> for ParserOptions {
 pub struct ParserBuilder(ParserOptions);
 
 impl ParserBuilder {
-    /// Create a Parser Builder
+    /// Create a [`Parser`](struct.Parser.html) Builder
     pub fn new() -> Self {
         Self(Default::default())
     }
 
-    /// Finish to build a Parser
+    /// Finish to build a [`Parser`](struct.Parser.html)
     pub fn build(&self) -> Parser {
         Parser(self.0.clone())
     }
@@ -103,6 +103,7 @@ impl ParserBuilder {
 }
 
 impl Default for ParserBuilder {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }

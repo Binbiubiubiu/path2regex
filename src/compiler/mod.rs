@@ -15,7 +15,7 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    ///
+    /// Create a [`Compiler`](struct.Compiler.html) with the options
     #[inline]
     pub fn new<I>(path: I) -> Result<Compiler>
     where
@@ -24,7 +24,16 @@ impl Compiler {
         CompilerBuilder::new(path).build()
     }
 
-    ///
+    /// Create a [`Compiler`](struct.Compiler.html) with the options
+    #[inline]
+    pub fn new_with_options<I>(path: I, options: CompilerOptions) -> Result<Compiler>
+    where
+        I: TryIntoWith<Vec<Token>, ParserOptions>,
+    {
+        CompilerBuilder::new_with_options(path, options).build()
+    }
+
+    /// render parameters into a path
     pub fn render(&self, data: &DataValue) -> Result<String> {
         let mut path = String::new();
         let CompilerOptions {
