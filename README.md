@@ -28,7 +28,7 @@ let re = path2regex::PathRegexBuilder::new("/test")
         .build()
         .unwrap();
 
-// expected: Captures({0: Some("/test"), "END_WIND_DELIMITER": Some("")})
+// expected: Captures({0: Some("/test")})
 // found: Captures({0: Some("/test"), "END_WIND_DELIMITER": Some("")})
 println!("{:?}", re.captures("/test").unwrap());
 // expected: Captures({0: Some("/test")})
