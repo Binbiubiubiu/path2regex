@@ -2,7 +2,7 @@
 
 ## Installation
 
-```
+``` bash
 cargo add path2regex
 ```
 
