@@ -2,12 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.0.3] - 2022-11-20
 
 ### Documentation
 
 - Fx readmee
 - Add docs
+
+### Miscellaneous Tasks
+
+- Release v0.0.3
 
 ### Ci
 
