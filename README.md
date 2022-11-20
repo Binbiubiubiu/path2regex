@@ -3,14 +3,14 @@
 ## Installation
 
 ```
-cargo add path2regexp
+cargo add path2regex
 ```
 
 ## Features
 
-- **default**: support [PathRegex](https://docs.rs/path2regexp/latest/path2regexp/struct.PathRegex.html) and [Parser](https://docs.rs/path2regexp/latest/path2regexp/struct.Parser.html)
-- **compile**: support [Compiler](https://docs.rs/path2regexp/latest/path2regexp/struct.Compiler.html)
-- **match**: support [Matcher](https://docs.rs/path2regexp/latest/path2regexp/struct.Matcher.html)
+- **default**: support [PathRegex](https://docs.rs/path2regex/latest/path2regex/struct.PathRegex.html) and [Parser](https://docs.rs/path2regex/latest/path2regex/struct.Parser.html)
+- **compile**: support [Compiler](https://docs.rs/path2regex/latest/path2regex/struct.Compiler.html)
+- **match**: support [Matcher](https://docs.rs/path2regex/latest/path2regex/struct.Matcher.html)
 
 ## Usage
 
