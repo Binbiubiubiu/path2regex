@@ -2,7 +2,7 @@
 
 #[cfg(feature = "compile")]
 use crate::CompilerOptions;
-use crate::{Parser, PathRegexOptions, DEFUALT_DELIMITER};
+use crate::{Parser, PathRegexOptions, DEFAULT_DELIMITER};
 
 /// The Configuration of the [`Parser`](struct.Parser.html)
 #[derive(Clone)]
@@ -16,7 +16,7 @@ pub struct ParserOptions {
 impl Default for ParserOptions {
     fn default() -> Self {
         Self {
-            delimiter: DEFUALT_DELIMITER.to_owned(),
+            delimiter: DEFAULT_DELIMITER.to_owned(),
             prefixes: "./".to_owned(),
         }
     }

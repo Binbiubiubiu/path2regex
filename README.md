@@ -1,5 +1,7 @@
 # Path-to-RegExp
 
+ ![Crates.io](https://img.shields.io/crates/v/path2regex) ![Crates.io](https://img.shields.io/crates/d/path2regex) ![Crates.io](https://img.shields.io/crates/l/path2regex) [![CI](https://github.com/Binbiubiubiu/path2regex/actions/workflows/CI.yml/badge.svg)](https://github.com/Binbiubiubiu/path2regex/actions/workflows/CI.yml) [![codecov](https://codecov.io/gh/Binbiubiubiu/path2regex/branch/main/graph/badge.svg?token=YTIKDKKKBV)](https://codecov.io/gh/Binbiubiubiu/path2regex)
+
 ## Installation
 
 ``` bash

@@ -21,6 +21,7 @@ impl<'a> Default for CompileCase<'a> {
     }
 }
 
+#[derive(Default)]
 struct MatchCase<'a> {
     path_name: &'a str,
     matches: Option<Vec<&'a str>>,
@@ -28,20 +29,9 @@ struct MatchCase<'a> {
     options: MatcherOptions,
 }
 
-impl<'a> Default for MatchCase<'a> {
-    fn default() -> Self {
-        Self {
-            path_name: "",
-            matches: None,
-            params: None,
-            options: Default::default(),
-        }
-    }
-}
-
 fn assert_re(
     path: impl TryIntoWith<PathRegex, PathRegexOptions>,
-    tokens: &Vec<Token>,
+    tokens: &[Token],
     options: PathRegexOptions,
     should_parse_keys: bool,
 ) -> Result<PathRegex> {
@@ -73,6 +63,7 @@ fn assert_compile(
     options: CompilerOptions,
 ) -> Result<()> {
     for case in complie_cases {
+        #[allow(clippy::needless_update)]
         let options = CompilerOptions {
             delimiter: options.delimiter.clone(),
             prefixes: options.prefixes.clone(),

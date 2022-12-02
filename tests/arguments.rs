@@ -2,7 +2,7 @@ use anyhow::Result;
 use path2regex::{Key, PathRegex, PathRegexBuilder};
 use regex::Regex;
 
-pub const TEST_PATH: &'static str = "/user/:id";
+pub const TEST_PATH: &str = "/user/:id";
 
 #[test]
 fn should_work_with_different_argument() -> Result<()> {

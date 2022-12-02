@@ -24,7 +24,7 @@ pub use compiler::{Compiler, CompilerBuilder, CompilerOptions};
 #[cfg(feature = "match")]
 pub use matcher::{MatchResult, Matcher, MatcherBuilder, MatcherOptions};
 /// The matching trailing character is used for 'end' and 'ends_with' configuration item filtering
-pub const DEFUALT_DELIMITER: &str = "/#?";
+pub const DEFAULT_DELIMITER: &str = "/#?";
 
 mod internal {
     pub(crate) use regex::escape as escape_string;
