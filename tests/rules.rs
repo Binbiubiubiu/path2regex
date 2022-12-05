@@ -111,7 +111,7 @@ fn assert_match(
                 .collect::<Vec<_>>()
         });
 
-        assert_eq!(matches, case.matches, "{}", message);
+        assert_eq!(matches, case.matches, "{message}");
 
         if case.params.is_some() {
             let matcher =
@@ -119,8 +119,7 @@ fn assert_match(
             assert_eq!(
                 matcher.find(case.path_name),
                 case.params,
-                "{} params",
-                message
+                "{message} params"
             );
         }
     }
