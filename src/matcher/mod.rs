@@ -61,16 +61,17 @@ impl Matcher {
                     ..
                 } = key;
 
-                if matches!(name.as_str(), "*" | "+") {
-                    let sp = if prefix.is_empty() { suffix } else { prefix };
-                    let value = value
-                        .split(sp)
-                        .map(|x| DataValue::String(decode(x, key)))
-                        .collect();
-                    return (name.to_owned(), DataValue::Array(value));
+                match name.as_str() {
+                    "*" | "+" => {
+                        let sp = if prefix.is_empty() { suffix } else { prefix };
+                        let value = value
+                            .split(sp)
+                            .map(|x| DataValue::String(decode(x, key)))
+                            .collect();
+                        (name.to_owned(), DataValue::Array(value))
+                    }
+                    _ => (name.to_owned(), DataValue::String(decode(value, key))),
                 }
-
-                (name.to_owned(), DataValue::String(decode(value, key)))
             })
             .collect::<DataValue>();
 

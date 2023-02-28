@@ -65,16 +65,18 @@ impl Compiler {
                     let mut resolve_string = |value: &String| {
                         let segment = encode(value, token);
 
-                        if validate
+                        let validate = validate
                             && self.matches[i]
                                 .as_ref()
                                 .map(|m| m.is_match(segment.as_str()))
-                                .is_none()
-                        {
-                            return Err(anyhow!("Expected all \"{name}\" to match \"{pattern}\", but got \"{segment}\""));
+                                .unwrap_or_default();
+                        match validate{
+                            false => Err(anyhow!("Expected all \"{name}\" to match \"{pattern}\", but got \"{segment}\"")),
+                            true => {
+                                path = format!("{path}{prefix}{segment}{suffix}");
+                                Ok(())
+                            }
                         }
-                        path = format!("{path}{prefix}{segment}{suffix}");
-                        Ok(())
                     };
 
                     if let Some(value) = value {
